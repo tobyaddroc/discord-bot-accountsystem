@@ -1,12 +1,9 @@
-﻿using Discord;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
+using Discord;
 using Discord.Interactions;
 using DiscordBotAccountSystem.Auth.Prototypes;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiscordBotAccountSystem.Auth
 {

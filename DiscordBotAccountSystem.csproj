@@ -328,9 +328,9 @@
     <Compile Include="Auth\Prototypes\CPBan.cs" />
     <Compile Include="Auth\Prototypes\CPPerms.cs" />
     <Compile Include="Auth\CCRegister.cs" />
+    <Compile Include="CEntry.cs" />
     <Compile Include="CGlobal.cs" />
     <Compile Include="CSlashCMDs.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
