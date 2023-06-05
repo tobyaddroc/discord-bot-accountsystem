@@ -5,24 +5,15 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Lumi.ClientCommands.Handlers;
-using System.Security.Principal;
-using System.Reflection;
-using Lumi.Properties;
-using System.Diagnostics;
-using System.Windows.Forms;
-using Lumi.Kernel;
+using System.IO;
 
-namespace Lumi
+namespace DiscordBotAccountSystem
 {
     class CEntry
     {
-        private static SignalHandler signalHandler;
-        [STAThread] public static Task Main(string[] args) => new CEntry().Preload();
+        [STAThread] public static Task Main() => new CEntry().Preload();
 
-        CConfig config = CCSConfig.Config;
-
-        private DiscordSocketClient socket = new DiscordSocketClient(new DiscordSocketConfig()
+        private readonly DiscordSocketClient socket = new DiscordSocketClient(new DiscordSocketConfig()
         {
             GatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildMessages | GatewayIntents.MessageContent,
             AlwaysDownloadUsers = true
@@ -49,7 +40,7 @@ namespace Lumi
 
             var _client = provider.GetRequiredService<DiscordSocketClient>();
             var _scommands = provider.GetRequiredService<InteractionService>();
-            var _guild = _client.GetGuild(config.guildId);
+            var _guild = _client.GetGuild(CGlobal.CConfig.GuildId);
             await provider.GetRequiredService<CSlashCMDs>().Initialize();
 
             _client.Log += async (LogMessage log) => Console.WriteLine("[CLIENT_LOG] => " + log.Message);
@@ -58,20 +49,23 @@ namespace Lumi
             _client.Ready += async () =>
             {
                 Console.WriteLine("[BOT_LOG] => Started");
-                await _scommands.RegisterCommandsToGuildAsync(config.guildId);
-                await new Events.ENewUser().Trigger(_client);
-                await new CAutoRunHook().Hook(_client);
-                if (CGlobal.isElevated)
+                try
                 {
-                    await socket.SetStatusAsync(UserStatus.Idle);
-                    await socket.SetGameAsync("Elevated");
+                    if (!File.Exists("db.json") || !File.Exists("groups.json"))
+                        throw new FileNotFoundException("Database not found");
+                    CGlobal.DataBaseHandle = new Auth.CDataBase("db.json");
+                    CGlobal.GroupsHandle = File.OpenRead("groups.json");
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("[DATABASE] => {0}", ex.ToString());
+                    return;
+                }
+                Console.WriteLine("[DATABASE] => Connected to database");
+                await _scommands.RegisterCommandsToGuildAsync(CGlobal.CConfig.GuildId);
             };
 
-            signalHandler += async (c) => await new Events.EDisconnectedUser().Trigger(_client);
-            ConsoleHelper.SetSignalHandler(signalHandler, true);
-
-            await _client.LoginAsync(TokenType.Bot, config.token);
+            await _client.LoginAsync(TokenType.Bot, CGlobal.CConfig.Token);
             await _client.StartAsync();
 
             await Task.Delay(-1);
