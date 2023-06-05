@@ -1,0 +1,20 @@
+{
+  "admin": {
+    "adminmenu": true,
+    "nocooldown": true,
+    "viewprofiles": true,
+    "color": 16711680
+  },
+  "premium": {
+    "adminmenu": false,
+    "nocooldown": true,
+    "viewprofiles": true,
+    "color": 16768000
+  },
+  "user": {
+    "adminmenu": false,
+    "nocooldown": false,
+    "viewprofiles": false,
+    "color": 6118749
+  }
+}
